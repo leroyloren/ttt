@@ -1,40 +1,15 @@
-name: Continuous Integration
+name: Zip Files
+
 on:
-  push:
-  pull_request:
+  release:
+    types: [published]
+
 jobs:
-  composer-install:
+  zip-files:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - run: composer install --ansi --no-progress --no-interaction --prefer-dist
-      - uses: montudor/action-zip@v0.1.0
+      - uses: actions/checkout@v2
+      - uses: papeloto/action-zip@v1
         with:
-          args: zip -qq -r vendor.zip vendor
-      - uses: actions/upload-artifact@v2
-        with:
-          name: vendor.zip
-  tests:
-    needs: composer-install
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/download-artifact@v2
-        with:
-          name: vendor.zip
-      - uses: montudor/action-zip@v0.1.0
-        with:
-          args: unzip -qq vendor.zip -d vendor
-      - run: ./vendor/bin/phpunit
-  mutation:
-    needs: composer-install
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/download-artifact@v2
-        with:
-          name: vendor.zip
-      - uses: montudor/action-zip@v0.1.0
-        with:
-          args: unzip -qq vendor.zip -d vendor
-      - run: ./vendor/bin/infection
+          files: dist/ manifest.json
+          dest: result.zip
